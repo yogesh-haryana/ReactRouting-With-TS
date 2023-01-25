@@ -1,16 +1,40 @@
-import { React } from 'react';
-import { TextField, Button } from '@mui/material';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import { useForm } from 'react-hook-form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useStyles from './FormStyle';
 
-function Form() {
+type FormTypes = {
+  id: number,
+  name: string,
+  username: string,
+  email: string,
+  website: string,
+  phone: number,
+  company: {
+    name: string,
+    catchphrase: string,
+    bs: string
+  },
+  address: {
+    city: string,
+    zipcode: string;
+    suite: string,
+    street: string,
+    geo: {
+      lat: number,
+      lng: number
+    }
+  }
+}
+
+function Form(): JSX.Element {
   const classes = useStyles();
   const {
     register, handleSubmit, resetField,
     formState: { errors },
-  } = useForm();
+  } = useForm<FormTypes>();
 
   const notify = () => toast('User Details Saved Successfully.');
 
@@ -31,12 +55,13 @@ function Form() {
     resetField('address.geo.lng');
   };
 
-  const onSubmit = (data) => {
+  const onSubmit = handleSubmit((data) => {
     const item = data;
-    item.id = Math.floor(Math.random() * Math.random() * 100) + 1;
     let localUserData;
-    if (localStorage.getItem('userdata')) {
-      localUserData = JSON.parse(localStorage.getItem('userdata'));
+    item.id = Math.floor(Math.random() * Math.random() * 100) + 1;
+    const abc = localStorage.getItem('userdata');
+    if (abc) {
+      localUserData = JSON.parse(abc);
     } else {
       localUserData = [];
     }
@@ -44,7 +69,7 @@ function Form() {
     localStorage.setItem('userdata', JSON.stringify(localUserData));
     onReset();
     notify();
-  };
+  });
 
   return (
     <div>
@@ -53,7 +78,7 @@ function Form() {
           <div className={classes.popupheader}>
             <p className={classes.formheading}>User Details Form</p>
           </div>
-          <form name="userdataform" onSubmit={handleSubmit((e) => onSubmit(e))}>
+          <form name="userdataform" onSubmit={onSubmit}>
             <p className={classes.formSubHeading}>Personal Details: </p>
             <div className={classes.inputGroups}>
               <div className={classes.inputBoxDiv}>
@@ -283,7 +308,7 @@ function Form() {
             </div>
           </form>
         </div>
-        <ToastContainer className={classes.Toastify__toast} />
+        <ToastContainer />
       </div>
     </div>
   );
